@@ -105,10 +105,11 @@ class _TaskScreenState extends State<TaskScreen>
           borderRadius: BorderRadius.circular(14),
         ),
         child: AnimatedIcon(
-          icon: AnimatedIcons.add_event,
+          icon: AnimatedIcons.arrow_menu, //Cambio de icono animado.
           progress: _iconController,
         ),
       ),
     );
   }
 }
+

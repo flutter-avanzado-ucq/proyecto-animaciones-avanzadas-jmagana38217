@@ -21,13 +21,14 @@ class TaskCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 400),
-      opacity: isDone ? 0.6 : 1.0,
+      opacity: isDone ? 0.5 : 1.0, //Cambio en la opacidad.
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 400),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDone ? Colors.green.shade100 : Colors.white,
+          //Cambio en el color del fondo.
+          color: isDone ? Colors.yellow.shade300 : Colors.white, //Cambio de color de fondo.
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -44,7 +45,8 @@ class TaskCard extends StatelessWidget {
               animation: iconRotation,
               builder: (context, child) {
                 return Transform.rotate(
-                  angle: isDone ? iconRotation.value * pi : 0,
+                  // Cambio en la rotación del icono.
+                  angle: isDone ? iconRotation.value * pi : 0, //La rotación del ícono ya es de 180 grados.
                   child: Icon(
                     isDone ? Icons.check_circle : Icons.radio_button_unchecked,
                     color: isDone ? Colors.green : Colors.grey,
