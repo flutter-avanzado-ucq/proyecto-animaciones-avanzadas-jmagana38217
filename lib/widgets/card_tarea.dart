@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TaskCard extends StatelessWidget {
   final String title;
@@ -7,6 +8,7 @@ class TaskCard extends StatelessWidget {
   final VoidCallback onToggle;
   final VoidCallback onDelete;
   final Animation<double> iconRotation;
+  final DateTime? vencimiento;
 
   const TaskCard({
     super.key,
@@ -15,17 +17,18 @@ class TaskCard extends StatelessWidget {
     required this.onToggle,
     required this.onDelete,
     required this.iconRotation,
+    required this.vencimiento,
   });
 
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: ValueKey(title), 
-      direction: DismissDirection.endToStart, // Cambio para arrastrar hacia la izquierda
+      key: ValueKey(title),
+      direction: DismissDirection.endToStart,
       onDismissed: (direction) {
         onDelete();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Tarea eliminada')),
+          const SnackBar(content: Text('Tarea eliminada')),
         );
       },
       background: Container(
@@ -65,19 +68,35 @@ class TaskCard extends StatelessWidget {
                   return Transform.rotate(
                     angle: isDone ? iconRotation.value * pi : 0,
                     child: Icon(
-                      isDone ? Icons.check_circle : Icons.radio_button_unchecked,
+                      isDone
+                          ? Icons.check_circle
+                          : Icons.radio_button_unchecked,
                       color: isDone ? Colors.green : Colors.grey,
                     ),
                   );
                 },
               ),
             ),
-            title: Text(
-              title,
-              style: TextStyle(
-                decoration: isDone ? TextDecoration.lineThrough : null,
-                color: isDone ? Colors.black54 : Colors.black87,
-              ),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    decoration:
+                        isDone ? TextDecoration.lineThrough : null,
+                    color: isDone ? Colors.black54 : Colors.black87,
+                  ),
+                ),
+                if (vencimiento != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      'Vencimiento: ${DateFormat('dd/MM/yyyy').format(vencimiento!)}',
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ),
+              ],
             ),
             trailing: IconButton(
               icon: const Icon(Icons.delete, color: Colors.redAccent),
