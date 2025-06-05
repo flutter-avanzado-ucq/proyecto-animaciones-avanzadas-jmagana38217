@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../widgets/edit_task_sheet.dart';
 
 class TaskCard extends StatelessWidget {
   final String title;
@@ -8,7 +9,8 @@ class TaskCard extends StatelessWidget {
   final VoidCallback onToggle;
   final VoidCallback onDelete;
   final Animation<double> iconRotation;
-  final DateTime? vencimiento;
+  final DateTime? dueDate;
+  final int index;
 
   const TaskCard({
     super.key,
@@ -17,91 +19,90 @@ class TaskCard extends StatelessWidget {
     required this.onToggle,
     required this.onDelete,
     required this.iconRotation,
-    required this.vencimiento,
+    required this.index,
+    this.dueDate,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Dismissible(
-      key: ValueKey(title),
-      direction: DismissDirection.endToStart,
-      onDismissed: (direction) {
-        onDelete();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Tarea eliminada')),
-        );
-      },
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 500),
+      opacity: isDone ? 0.4 : 1.0,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.redAccent,
-          borderRadius: BorderRadius.circular(16),
+          color: isDone ? const Color(0xFFD0F0C0) : const Color(0xFFFFF8E1),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 400),
-        opacity: isDone ? 0.5 : 1.0,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 400),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: isDone ? Colors.yellow.shade300 : Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              )
+        child: ListTile(
+          leading: GestureDetector(
+            onTap: onToggle,
+            child: AnimatedBuilder(
+              animation: iconRotation,
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: iconRotation.value * pi,
+                  child: Icon(
+                    isDone ? Icons.refresh : Icons.radio_button_unchecked,
+                    color: isDone ? Colors.teal : Colors.grey,
+                    size: 30,
+                  ),
+                );
+              },
+            ),
+          ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  decoration: isDone ? TextDecoration.lineThrough : null,
+                  fontSize: 18,
+                  color: isDone ? Colors.black45 : Colors.black87,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              if (dueDate != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    'Vence: ${DateFormat('dd/MM/yyyy').format(dueDate!)}',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ),
             ],
           ),
-          child: ListTile(
-            leading: GestureDetector(
-              onTap: onToggle,
-              child: AnimatedBuilder(
-                animation: iconRotation,
-                builder: (context, child) {
-                  return Transform.rotate(
-                    angle: isDone ? iconRotation.value * pi : 0,
-                    child: Icon(
-                      isDone
-                          ? Icons.check_circle
-                          : Icons.radio_button_unchecked,
-                      color: isDone ? Colors.green : Colors.grey,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit, color: Colors.blue),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                     ),
+                    builder: (_) => EditTaskSheet(index: index),
                   );
                 },
               ),
-            ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    decoration:
-                        isDone ? TextDecoration.lineThrough : null,
-                    color: isDone ? Colors.black54 : Colors.black87,
-                  ),
-                ),
-                if (vencimiento != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      'Vencimiento: ${DateFormat('dd/MM/yyyy').format(vencimiento!)}',
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ),
-              ],
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete, color: Colors.redAccent),
-              onPressed: onDelete,
-            ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: Colors.red),
+                onPressed: onDelete,
+              ),
+            ],
           ),
         ),
       ),

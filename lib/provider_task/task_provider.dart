@@ -3,19 +3,18 @@ import 'package:flutter/material.dart';
 class Task {
   String title;
   bool done;
+  DateTime? dueDate;
 
-//practica se agrega parametro de fecha
-  Task({required this.title, this.done = false});
+  Task({required this.title, this.done = false, this.dueDate});
 }
 
-//Es como el set state, cuando se llame desde otro widget se va a actualizar el dise;o
 class TaskProvider with ChangeNotifier {
   final List<Task> _tasks = [];
 
   List<Task> get tasks => List.unmodifiable(_tasks);
 
-  void addTask(String title) {
-    _tasks.insert(0, Task(title: title));
+  void addTask(String title, {DateTime? dueDate}) {
+    _tasks.insert(0, Task(title: title, dueDate: dueDate));
     notifyListeners();
   }
 
@@ -26,6 +25,13 @@ class TaskProvider with ChangeNotifier {
 
   void removeTask(int index) {
     _tasks.removeAt(index);
+    notifyListeners();
+  }
+
+  void updateTask(int index, String newTitle, {DateTime? newDate})
+  {
+    _tasks[index].title = newTitle;
+    _tasks[index].dueDate = newDate;
     notifyListeners();
   }
 }
